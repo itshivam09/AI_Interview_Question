@@ -113,6 +113,38 @@ AI_Interview_Question/
 
 ---
 
-## 📄 License
+## ☁️ Deployment Guides
 
-This project is licensed under the [MIT License](LICENSE).
+### Deploy to Render (Recommended - Free & 1-Click)
+
+1. Sign up / Log in to [Render](https://render.com/).
+2. Click **New +** -> **Web Service**.
+3. Connect your GitHub repository: `https://github.com/itshivam09/AI_Interview_Question`.
+4. Configure settings:
+   - **Name**: `ai-interview-platform`
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+5. Under **Environment Variables**, add:
+   - `GEMINI_API_KEY`: `your_gemini_api_key`
+   - `PYTHON_VERSION`: `3.11.9`
+6. Click **Create Web Service**. Your app is live!
+
+---
+
+### Deploy to Vercel
+
+1. Install Vercel CLI or log in to [Vercel](https://vercel.com/).
+2. Click **Add New...** -> **Project** -> Import `AI_Interview_Question`.
+3. In **Environment Variables**, add:
+   - `GEMINI_API_KEY`: `your_gemini_api_key`
+4. Click **Deploy**.
+
+---
+
+## 📄 License & Terms
+
+Copyright (c) 2026 Shivam Yadav. All Rights Reserved.
+
+This project is made available for educational and personal viewing/demonstration purposes only.
+You may view and run the code locally, but you are not permitted to modify, resell, or redistribute it without explicit permission.
