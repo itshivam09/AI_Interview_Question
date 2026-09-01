@@ -130,17 +130,7 @@ AI_Interview_Question/
    - `PYTHON_VERSION`: `3.11.9`
 6. Click **Create Web Service**. Your app is live!
 
----
 
-### Deploy to Vercel
-
-1. Install Vercel CLI or log in to [Vercel](https://vercel.com/).
-2. Click **Add New...** -> **Project** -> Import `AI_Interview_Question`.
-3. In **Environment Variables**, add:
-   - `GEMINI_API_KEY`: `your_gemini_api_key`
-4. Click **Deploy**.
-
----
 
 ## 📄 License & Terms
 

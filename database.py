@@ -3,10 +3,7 @@ import datetime
 from sqlalchemy import create_engine, Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
-if os.environ.get("VERCEL"):
-    DATABASE_URL = "sqlite:////tmp/interview_rag.db"
-else:
-    DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./interview_rag.db")
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./interview_rag.db")
 
 engine = create_engine(
     DATABASE_URL, 
