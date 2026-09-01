@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG AI Interviewer & Scorecard Pro</title>
+  <meta name="description" content="RAG-based AI Interview preparation platform that grounds questions in your real resume and evaluates your technical answers with an intelligent scorecard.">
+  
+  <!-- Google Fonts: Outfit and Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/static/css/style.css?v=2">
+</head>
+<body class="dark-theme">
+  <!-- Dynamic Futuristic AI Cursor -->
+  <div id="cursor-dot" class="cursor-dot cursor-hidden"></div>
+  <div id="cursor-ring" class="cursor-ring cursor-hidden"></div>
+
+  <!-- Background Glow Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <!-- Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-wrapper">
+        <div class="brand-logo">
+          <i data-lucide="bot" class="logo-icon"></i>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">InterviewIQ <span class="badge-rag">RAG AI</span></h1>
+          <p class="brand-subtitle">Resume-Grounded Mock Interview & Scorecard</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-reset-app" class="btn-ghost" style="display: none;" title="Restart Session">
+          <i data-lucide="rotate-ccw" class="btn-icon"></i>
+          <span>New Interview</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Container -->
+  <main class="main-content">
+
+    <!-- ================= STAGE 1: SETUP & RESUME UPLOAD ================= -->
+    <section id="stage-setup" class="stage-section active">
+      <div class="hero-section">
+        <span class="hero-tag"><i data-lucide="sparkles" class="tag-icon"></i> Powered by Retrieval-Augmented Generation</span>
+        <h2 class="hero-title">Practice Technical Interviews Grounded In <span class="gradient-text">Your Real Experience</span></h2>
+        <p class="hero-desc">
+          Upload your resume. Our RAG engine extracts your actual projects, architecture decisions, and technologies to simulate an authentic interview — then gives you a precise scorecard of what was right and what needs work.
+        </p>
+      </div>
+
+      <div class="setup-grid">
+        <!-- Resume Upload Card -->
+        <div class="glass-card upload-card">
+          <div class="card-header">
+            <div class="card-icon-wrap"><i data-lucide="file-text"></i></div>
+            <div>
+              <h3 class="card-title">1. Upload Your Resume</h3>
+              <p class="card-subtitle">PDF or TXT supported (Max 10MB)</p>
+            </div>
+          </div>
+
+          <div id="dropzone" class="dropzone">
+            <input type="file" id="resume-file-input" accept=".pdf,.txt" style="display: none;">
+            <div class="dropzone-inner" id="dropzone-content">
+              <div class="upload-icon-circle">
+                <i data-lucide="upload-cloud" class="upload-icon"></i>
+              </div>
+              <p class="dropzone-primary">Drag & drop your resume here, or <span class="browse-link">browse</span></p>
+              <p class="dropzone-secondary">Extracts your projects, tools & achievements automatically</p>
+            </div>
+
+            <!-- Uploading State -->
+            <div id="upload-spinner" class="upload-state-view" style="display: none;">
+              <div class="spinner"></div>
+              <p class="upload-state-text">Analyzing & extracting resume sections...</p>
+            </div>
+
+            <!-- Success State -->
+            <div id="upload-success" class="upload-state-view" style="display: none;">
+              <div class="success-icon-circle"><i data-lucide="check" class="success-icon"></i></div>
+              <p class="upload-success-name" id="uploaded-filename">resume.pdf</p>
+              <p class="upload-success-meta" id="uploaded-meta">✓ Resume verified & ready for interview</p>
+              <button type="button" class="btn-link" id="btn-reupload">Change resume</button>
+            </div>
+          </div>
+
+          <!-- Parsed Sections Tags -->
+          <div id="sections-preview" class="sections-container" style="display: none;">
+            <span class="sections-label"><i data-lucide="layers" class="label-icon"></i> Detected Sections:</span>
+            <div class="tag-list" id="detected-tags"></div>
+          </div>
+        </div>
+
+        <!-- Interview Configuration Card -->
+        <div class="glass-card config-card">
+          <div class="card-header">
+            <div class="card-icon-wrap"><i data-lucide="sliders"></i></div>
+            <div>
+              <h3 class="card-title">2. Interview Preferences</h3>
+              <p class="card-subtitle">Customize target role and difficulty</p>
+            </div>
+          </div>
+
+          <form id="interview-config-form" class="config-form">
+            <!-- Target Role -->
+            <div class="form-group">
+              <label for="target-role" class="form-label">Target Role / Position</label>
+              <input type="text" id="target-role" class="form-input" placeholder="e.g. Senior Python Developer, Full Stack Engineer" required value="Full Stack Developer">
+              <div class="role-pills">
+                <button type="button" class="role-pill" data-role="Full Stack Developer">Full Stack</button>
+                <button type="button" class="role-pill" data-role="Python / AI Engineer">Python / AI</button>
+                <button type="button" class="role-pill" data-role="Backend Developer">Backend</button>
+                <button type="button" class="role-pill" data-role="Data Scientist">Data Science</button>
+                <button type="button" class="role-pill" data-role="DevOps / Cloud">DevOps</button>
+              </div>
+            </div>
+
+            <!-- Experience Level -->
+            <div class="form-group">
+              <label class="form-label">Difficulty / Seniority</label>
+              <div class="segmented-control">
+                <label class="segment-option">
+                  <input type="radio" name="difficulty" value="Junior">
+                  <span class="segment-label">Junior</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="difficulty" value="Mid-Level" checked>
+                  <span class="segment-label">Mid-Level</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="difficulty" value="Senior">
+                  <span class="segment-label">Senior</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="difficulty" value="Lead Architect">
+                  <span class="segment-label">Lead / Staff</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Total Questions -->
+            <div class="form-group">
+              <label for="num-questions" class="form-label">Number of Questions</label>
+              <div class="segmented-control">
+                <label class="segment-option">
+                  <input type="radio" name="num-questions" value="3">
+                  <span class="segment-label">3 Questions (Quick)</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="num-questions" value="5" checked>
+                  <span class="segment-label">5 Questions (Standard)</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="num-questions" value="7">
+                  <span class="segment-label">7 Questions (Deep)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Start Interview CTA -->
+            <button type="submit" id="btn-start-interview" class="btn-primary btn-large" disabled>
+              <span class="btn-text">Generate AI Interview Session</span>
+              <i data-lucide="arrow-right" class="btn-arrow"></i>
+            </button>
+            <p class="cta-hint" id="cta-hint">Please upload a resume first to unlock the interview.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= STAGE 2: LIVE INTERVIEW ARENA ================= -->
+    <section id="stage-interview" class="stage-section">
+      <!-- Interview Status Bar -->
+      <div class="interview-status-bar glass-card">
+        <div class="status-left">
+          <span class="question-tracker">Question <span id="current-q-num">1</span> of <span id="total-q-num">5</span></span>
+          <span class="category-badge" id="question-category">Project Deep Dive</span>
+        </div>
+        <div class="status-center">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="interview-progress-fill" style="width: 20%;"></div>
+          </div>
+        </div>
+        <div class="status-right">
+          <div class="timer-box">
+            <i data-lucide="clock" class="timer-icon"></i>
+            <span id="interview-timer">00:00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question and Answering Workspace -->
+      <div class="interview-workspace">
+        <!-- Question Card -->
+        <div class="glass-card question-card">
+          <div class="interviewer-header">
+            <div class="ai-avatar-pulse">
+              <i data-lucide="sparkles" class="avatar-icon"></i>
+            </div>
+            <div class="interviewer-info">
+              <span class="interviewer-name">AI Technical Interviewer</span>
+              <span class="interviewer-status">RAG Grounded in your Resume</span>
+            </div>
+          </div>
+
+          <div class="question-body">
+            <h3 class="question-text" id="active-question-text">Loading tailored question...</h3>
+          </div>
+
+          <!-- Resume Context Banner -->
+          <div class="resume-context-banner" id="resume-context-container">
+            <div class="context-icon"><i data-lucide="link-2"></i></div>
+            <div class="context-content">
+              <span class="context-label">Resume Claim Being Tested:</span>
+              <p class="context-text" id="active-resume-context">Analyzing project details from your resume...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate Answer Card -->
+        <div class="glass-card answer-card">
+          <div class="answer-header">
+            <label for="answer-input" class="answer-label">
+              <i data-lucide="message-square" class="label-icon"></i> Your Answer
+            </label>
+            <div class="speech-controls">
+              <button type="button" id="btn-voice-input" class="btn-voice" title="Click to speak your answer">
+                <i data-lucide="mic" class="mic-icon" id="mic-icon"></i>
+                <span id="mic-status-text">Voice Input</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="answer-input-wrapper">
+            <textarea 
+              id="answer-input" 
+              class="answer-textarea" 
+              placeholder="Explain your approach, architecture, tools used, and challenges you solved. Be specific — the AI checks your claims against your resume..." 
+              rows="7"
+            ></textarea>
+            
+            <div class="textarea-footer">
+              <span class="word-counter" id="word-count">0 words</span>
+              <span class="hint-text">Tip: Mention concrete tools, metrics, and architecture patterns for a high score.</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="answer-actions">
+            <button type="button" id="btn-skip-question" class="btn-ghost">
+              <span>Skip / Pass</span>
+            </button>
+            <button type="button" id="btn-submit-answer" class="btn-primary">
+              <span id="submit-btn-text">Submit & Evaluate Answer</span>
+              <i data-lucide="arrow-right" class="btn-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Real-Time Evaluation Result Modal/Drawer -->
+        <div id="evaluation-drawer" class="eval-drawer glass-card" style="display: none;">
+          <div class="eval-header">
+            <div class="eval-badge-wrap">
+              <span class="correctness-pill" id="eval-status-badge">Correct</span>
+              <span class="eval-score" id="eval-score-num">9.0 / 10</span>
+            </div>
+            <button type="button" id="btn-close-eval" class="btn-icon-only"><i data-lucide="x"></i></button>
+          </div>
+
+          <p class="eval-feedback-text" id="eval-feedback"></p>
+
+          <div class="eval-details-grid">
+            <div class="eval-column strengths-col">
+              <h4><i data-lucide="check-circle-2" class="col-icon green"></i> Key Strengths</h4>
+              <ul id="eval-strengths-list" class="eval-list"></ul>
+            </div>
+            <div class="eval-column improvements-col">
+              <h4><i data-lucide="alert-circle" class="col-icon amber"></i> Areas to Improve</h4>
+              <ul id="eval-improvements-list" class="eval-list"></ul>
+            </div>
+          </div>
+
+          <div class="ideal-answer-box">
+            <h4><i data-lucide="lightbulb" class="col-icon purple"></i> Model Answer Highlight</h4>
+            <p id="eval-ideal-answer"></p>
+          </div>
+
+          <div class="eval-footer">
+            <button type="button" id="btn-next-question" class="btn-primary btn-full">
+              <span id="next-q-text">Proceed to Next Question</span>
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= STAGE 3: COMPREHENSIVE SCORECARD ================= -->
+    <section id="stage-scorecard" class="stage-section">
+      <!-- Printable Scorecard Container -->
+      <div id="scorecard-report" class="scorecard-container">
+        
+        <!-- Scorecard Header Banner -->
+        <div class="glass-card scorecard-hero">
+          <div class="scorecard-meta">
+            <span class="hero-tag"><i data-lucide="award"></i> Official Evaluation Report</span>
+            <h2 class="scorecard-title">AI Interview Performance Scorecard</h2>
+            <p class="scorecard-subtitle">
+              Role: <strong id="scorecard-role">Full Stack Developer</strong> | 
+              Level: <strong id="scorecard-difficulty">Mid-Level</strong> | 
+              Session ID: <span id="scorecard-session-id" class="code-pill">...</span>
+            </p>
+          </div>
+
+          <div class="score-summary-badge">
+            <div class="score-circle-wrapper">
+              <svg class="score-circle" viewBox="0 0 120 120">
+                <circle class="score-circle-bg" cx="60" cy="60" r="50"></circle>
+                <circle class="score-circle-prog" id="score-circle-fill" cx="60" cy="60" r="50"></circle>
+              </svg>
+              <div class="score-value-wrap">
+                <span class="score-percentage" id="score-percentage-val">0%</span>
+                <span class="score-label">Overall</span>
+              </div>
+            </div>
+            <div class="recommendation-badge" id="hiring-recommendation-badge">Evaluating...</div>
+          </div>
+        </div>
+
+        <!-- Stats Bar: Correct vs Partially Correct vs Incorrect -->
+        <div class="stats-overview-grid">
+          <!-- Total Questions -->
+          <div class="stat-card glass-card">
+            <div class="stat-icon total"><i data-lucide="help-circle"></i></div>
+            <div class="stat-content">
+              <span class="stat-number" id="stat-total-q">0</span>
+              <span class="stat-name">Total Questions</span>
+            </div>
+          </div>
+
+          <!-- Sahi (Correct) -->
+          <div class="stat-card glass-card stat-correct">
+            <div class="stat-icon correct"><i data-lucide="check-circle"></i></div>
+            <div class="stat-content">
+              <span class="stat-number" id="stat-correct-count">0</span>
+              <span class="stat-name">Sahi (Correct) Answers</span>
+            </div>
+          </div>
+
+          <!-- Partially Correct -->
+          <div class="stat-card glass-card stat-partial">
+            <div class="stat-icon partial"><i data-lucide="alert-triangle"></i></div>
+            <div class="stat-content">
+              <span class="stat-number" id="stat-partial-count">0</span>
+              <span class="stat-name">Partially Correct</span>
+            </div>
+          </div>
+
+          <!-- Galat / Needs Improvement -->
+          <div class="stat-card glass-card stat-incorrect">
+            <div class="stat-icon incorrect"><i data-lucide="x-circle"></i></div>
+            <div class="stat-content">
+              <span class="stat-number" id="stat-incorrect-count">0</span>
+              <span class="stat-name">Galat / Incomplete</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Executive Summary & Category Breakdown -->
+        <div class="scorecard-analysis-grid">
+          <!-- Executive Summary -->
+          <div class="glass-card analysis-card">
+            <h3 class="card-title-sm"><i data-lucide="file-check-2" class="title-icon"></i> Executive Assessment</h3>
+            <p class="executive-summary-text" id="scorecard-executive-summary">Generating candidate analysis...</p>
+
+            <div class="strengths-weaknesses-wrap">
+              <div class="highlight-block green-tint">
+                <h4><i data-lucide="thumbs-up"></i> Top Candidate Strengths</h4>
+                <ul id="scorecard-top-strengths" class="highlight-list"></ul>
+              </div>
+              <div class="highlight-block red-tint">
+                <h4><i data-lucide="trending-up"></i> High-Priority Growth Areas</h4>
+                <ul id="scorecard-areas-growth" class="highlight-list"></ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Skill Meters -->
+          <div class="glass-card analysis-card">
+            <h3 class="card-title-sm"><i data-lucide="bar-chart-3" class="title-icon"></i> Competency Breakdown</h3>
+            <div class="skill-meters-list" id="skill-breakdown-container">
+              <!-- Dynamically filled -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Question-by-Question Accordion Review -->
+        <div class="glass-card review-section">
+          <div class="review-header">
+            <h3 class="card-title-sm"><i data-lucide="list-ordered" class="title-icon"></i> Question-by-Question Deep Dive</h3>
+            <p class="card-subtitle">Review how each response was graded against your resume context and ideal criteria</p>
+          </div>
+
+          <div class="questions-accordion-list" id="questions-review-accordion">
+            <!-- Dynamically populated review items -->
+          </div>
+        </div>
+
+        <!-- Scorecard Action Buttons -->
+        <div class="scorecard-actions">
+          <button type="button" id="btn-print-scorecard" class="btn-ghost">
+            <i data-lucide="printer"></i>
+            <span>Print / Save as PDF</span>
+          </button>
+          <button type="button" id="btn-restart-interview" class="btn-primary">
+            <i data-lucide="rotate-ccw"></i>
+            <span>Start Another Interview</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="/static/js/app.js?v=2"></script>
+</body>
+</html>

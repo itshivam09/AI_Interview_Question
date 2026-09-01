@@ -1,0 +1,38 @@
+# JOHN DOE
+Email: john.doe@techdev.io | Phone: +1-555-0199 | Location: San Francisco, CA
+LinkedIn: linkedin.com/in/johndoe-dev | GitHub: github.com/johndoe-dev
+
+## PROFESSIONAL SUMMARY
+Passionate Full Stack & Backend Engineer with 4+ years of hands-on experience designing and deploying high-performance microservices, REST APIs, and Retrieval-Augmented Generation (RAG) AI systems. Expert in Python, FastAPI, SQLite, PostgreSQL, and modern cloud deployment pipelines.
+
+## TECHNICAL SKILLS
+- Languages: Python, JavaScript, TypeScript, SQL, Bash
+- Backend Frameworks: FastAPI, Flask, Django, Node.js, Express
+- Databases: SQLite, PostgreSQL, MongoDB, Redis
+- AI & GenAI: Google Gemini API, OpenAI API, LangChain, Vector Embeddings (ChromaDB, FAISS), TF-IDF, RAG architectures
+- DevOps & Tools: Docker, Kubernetes, Git, GitHub Actions, AWS (S3, EC2), Linux
+
+## KEY PROJECTS
+### Project 1: RAG-based Enterprise Knowledge Assistant
+- Architected an end-to-end Retrieval-Augmented Generation (RAG) search and Q&A system using FastAPI and Vector Databases.
+- Implemented semantic chunking and hybrid dense-sparse vector indexing, reducing query retrieval latency by 45% across 50,000+ technical documents.
+- Built automated citation generation and hallucination-detection filters, ensuring high factual accuracy.
+
+### Project 2: High-Throughput Payment & Analytics Microservice
+- Developed asynchronous microservices using FastAPI, SQLite, and Redis caching handling 2,500+ requests per second with sub-50ms latency.
+- Implemented robust database transaction isolation, preventing double-spend anomalies during payment webhooks.
+- Configured automated unit and integration tests with PyTest, achieving 94% test coverage and zero production downtime.
+
+## WORK EXPERIENCE
+### Senior Backend Engineer | CloudScale Systems (2022 – Present)
+- Designed and maintained scalable RESTful and GraphQL APIs serving 350k+ daily active users.
+- Migrated legacy monolithic services to modular FastAPI microservices containerized with Docker.
+- Spearheaded database indexing and query optimization, cutting average database CPU utilization from 78% down to 24%.
+
+### Software Engineer | DataFlow Tech (2020 – 2022)
+- Built interactive client dashboards using JavaScript, CSS, and HTML connected to Python backend services.
+- Automated data ingestion pipelines processing 5GB of log metrics daily into SQLite and PostgreSQL data warehouses.
+
+## EDUCATION
+Bachelor of Technology in Computer Science & Engineering
+Apex Institute of Technology, Graduated: 2020
