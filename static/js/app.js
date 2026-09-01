@@ -417,8 +417,12 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtnText.textContent = 'Verifying with RAG & Grading...';
 
     try {
+      const qId = (state.activeQuestion && state.activeQuestion.question_id) 
+        ? state.activeQuestion.question_id 
+        : state.currentQuestionIndex;
+
       const payload = {
-        question_id: state.activeQuestion.question_id,
+        question_id: qId,
         candidate_answer: candidateAnswer
       };
 
@@ -435,7 +439,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       displayEvaluationDrawer(data.evaluation, data.has_next);
     } catch (err) {
-      alert('Error submitting answer: ' + err.message);
+      alert(err.message);
+      if (err.message.includes('Session expired') || err.message.includes('not found')) {
+        if (confirm('Your session has expired (the server was redeployed/restarted). Would you like to start a fresh interview?')) {
+          showStage('stage-setup');
+        }
+      }
       btnSubmitAnswer.disabled = false;
       btnSkipQuestion.disabled = false;
       submitBtnText.textContent = 'Submit & Evaluate Answer';

@@ -198,9 +198,20 @@ def submit_answer(
 ):
     """Step 4: Evaluate candidate answer with RAG resume verification and grading."""
     session = db.query(InterviewSession).filter_by(id=session_id).first()
+    if not session:
+        raise HTTPException(
+            status_code=404, 
+            detail="Session expired or not found (server was restarted). Please start a new interview session."
+        )
+
+    # Lookup question by ID, with fallback to q_index or current question index
     question = db.query(InterviewQuestion).filter_by(id=req.question_id, session_id=session_id).first()
-    if not session or not question:
-        raise HTTPException(status_code=404, detail="Session or question not found")
+    if not question:
+        question = db.query(InterviewQuestion).filter_by(q_index=req.question_id, session_id=session_id).first()
+    if not question:
+        question = db.query(InterviewQuestion).filter_by(q_index=session.current_question_index, session_id=session_id).first()
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found in current session.")
 
     # Fetch RAG context to verify claims against the resume
     chunks = db.query(RAGChunk).filter_by(resume_id=session.resume_id).all()
