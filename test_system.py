@@ -12,7 +12,8 @@ if sys.platform == "win32":
 
 from fastapi.testclient import TestClient
 from main import app
-from database import init_db, SessionLocal, Resume, InterviewSession
+from database import init_db, SessionLocal
+from models import Resume, InterviewSession
 from rag_service import RAGService
 from ai_interviewer import AIInterviewer
 

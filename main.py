@@ -8,13 +8,11 @@ from fastapi import FastAPI, UploadFile, File, Header, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from database import (
-    init_db, get_db, 
-    Resume, RAGChunk, InterviewSession, InterviewQuestion, InterviewAnswer
-)
+from database import init_db, get_db
+from models import Resume, RAGChunk, InterviewSession, InterviewQuestion, InterviewAnswer
+from schemas import StartInterviewRequest, SubmitAnswerRequest
 from rag_service import RAGService
 from ai_interviewer import AIInterviewer
 
@@ -37,20 +35,6 @@ app.add_middleware(
 
 rag_service = RAGService()
 ai_interviewer = AIInterviewer()
-
-
-# 2. Pydantic request models
-class StartInterviewRequest(BaseModel):
-    resume_id: int
-    target_role: str
-    difficulty: str = "Mid-Level"
-    total_questions: int = 5
-    api_key: Optional[str] = None
-
-class SubmitAnswerRequest(BaseModel):
-    question_id: int
-    candidate_answer: str
-    api_key: Optional[str] = None
 
 
 def resolve_api_key(explicit_key: Optional[str] = None, header_key: Optional[str] = None) -> Optional[str]:
