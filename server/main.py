@@ -1,8 +1,15 @@
 import os
+import sys
 import uuid
 import json
 import datetime
 from typing import Optional
+
+# Ensure server directory is in sys.path for robust execution from root or deployment
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 from dotenv import load_dotenv, dotenv_values
 from fastapi import FastAPI, UploadFile, File, Header, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,7 +23,6 @@ from schemas import StartInterviewRequest, SubmitAnswerRequest
 from rag_service import RAGService
 from ai_interviewer import AIInterviewer
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
 ENV_PATH = os.path.join(ROOT_DIR, ".env") if os.path.exists(os.path.join(ROOT_DIR, ".env")) else ".env"
 

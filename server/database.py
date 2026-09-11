@@ -1,6 +1,11 @@
 import os
+import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+
+SERVER_DIR = os.path.dirname(os.path.abspath(__file__))
+if SERVER_DIR not in sys.path:
+    sys.path.insert(0, SERVER_DIR)
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./interview_rag.db")
 
