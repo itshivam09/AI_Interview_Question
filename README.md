@@ -74,12 +74,12 @@ PORT=8000
 ### 6. Run the Application
 
 ```bash
+# Option 1: Run directly from server folder
+cd server
 python main.py
-```
 
-Or with Uvicorn:
-```bash
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+# Option 2: Run from root using Uvicorn
+uvicorn server.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Open your browser and navigate to:
@@ -93,22 +93,28 @@ http://127.0.0.1:8000
 
 ```
 AI_Interview_Question/
-├── .env.example          # Environment variables template
-├── .gitignore            # Git ignore rules for secrets and temp files
-├── README.md             # Project documentation
-├── requirements.txt      # Python dependencies
-├── main.py               # FastAPI application & API endpoints
-├── ai_interviewer.py     # Gemini AI interviewer & evaluation engine
-├── rag_service.py        # Resume parsing & chunk retrieval (RAG)
-├── database.py           # SQLAlchemy database models & schemas
-├── sample_resume.txt     # Sample resume for quick testing
-├── test_system.py        # System and integration tests
-└── static/               # Frontend assets (HTML, CSS, JS)
-    ├── index.html
-    ├── css/
-    │   └── style.css
-    └── js/
-        └── app.js
+├── client/                     # Frontend UI assets
+│   ├── index.html              # Main HTML application
+│   ├── css/
+│   │   └── style.css           # Modern dark-theme styling
+│   └── js/
+│       └── app.js              # Frontend logic & API interaction
+│
+├── server/                     # Backend Python API
+│   ├── main.py                 # FastAPI application & REST endpoints
+│   ├── database.py             # DB connection & session engine
+│   ├── models.py               # SQLAlchemy database tables
+│   ├── schemas.py              # Pydantic request models
+│   ├── rag_service.py          # Resume parsing & chunk retrieval (RAG)
+│   ├── ai_interviewer.py       # Gemini AI interviewer & evaluation engine
+│   ├── sample_resume.txt       # Sample resume for quick testing
+│   └── test_system.py          # System and integration tests
+│
+├── .env.example                # Environment variables template
+├── .gitignore                  # Git ignore rules for secrets and temp files
+├── render.yaml                 # Render cloud deployment blueprint
+├── requirements.txt            # Python dependencies
+└── README.md                   # Project documentation
 ```
 
 ---
@@ -124,7 +130,7 @@ AI_Interview_Question/
    - **Name**: `ai-interview-platform`
    - **Runtime**: `Python 3`
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Start Command**: `uvicorn server.main:app --host 0.0.0.0 --port $PORT`
 5. Under **Environment Variables**, add:
    - `GEMINI_API_KEY`: `your_gemini_api_key`
    - `PYTHON_VERSION`: `3.11.9`

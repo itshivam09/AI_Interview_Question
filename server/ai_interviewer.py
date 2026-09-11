@@ -57,11 +57,15 @@ class AIInterviewer:
     def _get_client(self, api_key_override: Optional[str] = None):
         """Initializes Gemini Client using key from request, constructor, or .env file."""
         from dotenv import dotenv_values
+        root_env = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
+        env_vals = dotenv_values(root_env) if os.path.exists(root_env) else dotenv_values(".env")
         key = (
             api_key_override
             or self.api_key
-            or dotenv_values(".env").get("GEMINI_API_KEY")
+            or env_vals.get("GEMINI_API_KEY")
+            or env_vals.get("GOOGLE_API_KEY")
             or os.environ.get("GEMINI_API_KEY")
+            or os.environ.get("GOOGLE_API_KEY")
         )
         if not key:
             raise ValueError("GEMINI_API_KEY is not configured in .env or environment.")

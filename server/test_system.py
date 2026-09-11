@@ -26,7 +26,8 @@ def test_full_pipeline():
 
     print("\n--- [2] Testing RAG Service Chunking & Extraction ---")
     rag = RAGService()
-    with open("sample_resume.txt", "rb") as f:
+    resume_path = os.path.join(os.path.dirname(__file__), "sample_resume.txt")
+    with open(resume_path, "rb") as f:
         resume_bytes = f.read()
     
     extracted_text = rag.extract_text_from_file(resume_bytes, "sample_resume.txt")
@@ -57,7 +58,7 @@ def test_full_pipeline():
     print(f"[OK] Health Check: {res.json()}")
 
     # Upload Resume
-    with open("sample_resume.txt", "rb") as f:
+    with open(resume_path, "rb") as f:
         res = client.post(
             "/api/upload-resume",
             files={"file": ("sample_resume.txt", f, "text/plain")}

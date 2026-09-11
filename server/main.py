@@ -16,6 +16,11 @@ from schemas import StartInterviewRequest, SubmitAnswerRequest
 from rag_service import RAGService
 from ai_interviewer import AIInterviewer
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+ENV_PATH = os.path.join(ROOT_DIR, ".env") if os.path.exists(os.path.join(ROOT_DIR, ".env")) else ".env"
+
+load_dotenv(ENV_PATH)
 load_dotenv()
 init_db()
 
@@ -39,7 +44,7 @@ ai_interviewer = AIInterviewer()
 
 def resolve_api_key(explicit_key: Optional[str] = None, header_key: Optional[str] = None) -> Optional[str]:
     """Dynamically get Gemini API key from request, header, or .env file."""
-    env_vals = dotenv_values(".env")
+    env_vals = dotenv_values(ENV_PATH) if os.path.exists(ENV_PATH) else dotenv_values(".env")
     key = explicit_key or header_key or env_vals.get("GEMINI_API_KEY") or env_vals.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     return str(key).strip("'\" ") if key else None
 
@@ -289,16 +294,15 @@ def get_scorecard(
     }
 
 
-# 4. Mount Static UI Files & Root Page
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
+# 4. Mount Client UI Files & Root Page
+CLIENT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "client"))
 
-if os.path.exists(STATIC_DIR):
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+if os.path.exists(CLIENT_DIR):
+    app.mount("/static", StaticFiles(directory=CLIENT_DIR), name="static")
 
 @app.get("/")
 def serve_index():
-    index_file = os.path.join(STATIC_DIR, "index.html")
+    index_file = os.path.join(CLIENT_DIR, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
     return {"message": "AI Interviewer API is running."}
