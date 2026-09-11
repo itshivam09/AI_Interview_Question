@@ -10,6 +10,10 @@ if sys.platform == "win32":
     except Exception:
         pass
 
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from fastapi.testclient import TestClient
 from main import app
 from database import init_db, SessionLocal

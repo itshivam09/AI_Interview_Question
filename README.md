@@ -74,12 +74,11 @@ PORT=8000
 ### 6. Run the Application
 
 ```bash
-# Option 1: Run directly from server folder
-cd server
+# Run with Python
 python main.py
 
-# Option 2: Run from root using Uvicorn
-uvicorn server.main:app --reload --host 127.0.0.1 --port 8000
+# Or with Uvicorn
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Open your browser and navigate to:
@@ -93,6 +92,8 @@ http://127.0.0.1:8000
 
 ```
 AI_Interview_Question/
+├── main.py                     # Root FastAPI application entrypoint & static mount
+│
 ├── client/                     # Frontend UI assets
 │   ├── index.html              # Main HTML application
 │   ├── css/
@@ -100,8 +101,8 @@ AI_Interview_Question/
 │   └── js/
 │       └── app.js              # Frontend logic & API interaction
 │
-├── server/                     # Backend Python API
-│   ├── main.py                 # FastAPI application & REST endpoints
+├── server/                     # Backend Python business logic
+│   ├── routes.py               # REST API endpoints (APIRouter)
 │   ├── database.py             # DB connection & session engine
 │   ├── models.py               # SQLAlchemy database tables
 │   ├── schemas.py              # Pydantic request models
@@ -130,7 +131,7 @@ AI_Interview_Question/
    - **Name**: `ai-interview-platform`
    - **Runtime**: `Python 3`
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn server.main:app --host 0.0.0.0 --port $PORT`
+   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 5. Under **Environment Variables**, add:
    - `GEMINI_API_KEY`: `your_gemini_api_key`
    - `PYTHON_VERSION`: `3.11.9`

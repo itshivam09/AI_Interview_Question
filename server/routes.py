@@ -4,46 +4,25 @@ import uuid
 import json
 import datetime
 from typing import Optional
-
-# Ensure server directory is in sys.path for robust execution from root or deployment
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
-
-from dotenv import load_dotenv, dotenv_values
-from fastapi import FastAPI, UploadFile, File, Header, Depends, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from dotenv import dotenv_values
+from fastapi import APIRouter, UploadFile, File, Header, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database import init_db, get_db
+# Ensure server folder is in Python path for intra-folder imports
+SERVER_DIR = os.path.dirname(os.path.abspath(__file__))
+if SERVER_DIR not in sys.path:
+    sys.path.insert(0, SERVER_DIR)
+
+from database import get_db
 from models import Resume, RAGChunk, InterviewSession, InterviewQuestion, InterviewAnswer
 from schemas import StartInterviewRequest, SubmitAnswerRequest
 from rag_service import RAGService
 from ai_interviewer import AIInterviewer
 
-ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+ROOT_DIR = os.path.abspath(os.path.join(SERVER_DIR, ".."))
 ENV_PATH = os.path.join(ROOT_DIR, ".env") if os.path.exists(os.path.join(ROOT_DIR, ".env")) else ".env"
 
-load_dotenv(ENV_PATH)
-load_dotenv()
-init_db()
-
-app = FastAPI(
-    title="RAG-Based AI Interviewer Platform",
-    description="Intelligent AI Interview practice platform with resume RAG retrieval and scorecard.",
-    version="1.0.0"
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+router = APIRouter(prefix="/api", tags=["Interview API"])
 rag_service = RAGService()
 ai_interviewer = AIInterviewer()
 
@@ -55,9 +34,7 @@ def resolve_api_key(explicit_key: Optional[str] = None, header_key: Optional[str
     return str(key).strip("'\" ") if key else None
 
 
-# 3. API Routes
-
-@app.get("/api/health")
+@router.get("/health")
 def health_check():
     """Check API status and verify if an API key is available."""
     return {
@@ -67,7 +44,7 @@ def health_check():
     }
 
 
-@app.post("/api/upload-resume")
+@router.post("/upload-resume")
 async def upload_resume(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """Step 1: Upload resume PDF/TXT, parse sections, index chunks for RAG."""
     if not file.filename:
@@ -103,7 +80,7 @@ async def upload_resume(file: UploadFile = File(...), db: Session = Depends(get_
     }
 
 
-@app.post("/api/start-interview")
+@router.post("/start-interview")
 def start_interview(
     req: StartInterviewRequest,
     x_api_key: Optional[str] = Header(None),
@@ -156,7 +133,7 @@ def start_interview(
     }
 
 
-@app.get("/api/session/{session_id}/question/{q_index}")
+@router.get("/session/{session_id}/question/{q_index}")
 def get_question(session_id: str, q_index: int, db: Session = Depends(get_db)):
     """Step 3: Retrieve a specific question and candidate answer if already given."""
     session = db.query(InterviewSession).filter_by(id=session_id).first()
@@ -184,7 +161,7 @@ def get_question(session_id: str, q_index: int, db: Session = Depends(get_db)):
     }
 
 
-@app.post("/api/session/{session_id}/submit-answer")
+@router.post("/session/{session_id}/submit-answer")
 def submit_answer(
     session_id: str,
     req: SubmitAnswerRequest,
@@ -248,7 +225,7 @@ def submit_answer(
     }
 
 
-@app.get("/api/session/{session_id}/scorecard")
+@router.get("/session/{session_id}/scorecard")
 def get_scorecard(
     session_id: str,
     x_api_key: Optional[str] = Header(None),
@@ -298,25 +275,3 @@ def get_scorecard(
         "areas_for_growth": summary.get("areas_for_growth", []), "skill_breakdown": summary["skill_breakdown"],
         "questions_review": qa_list
     }
-
-
-# 4. Mount Client UI Files & Root Page
-CLIENT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "client"))
-
-if os.path.exists(CLIENT_DIR):
-    app.mount("/static", StaticFiles(directory=CLIENT_DIR), name="static")
-
-@app.get("/")
-def serve_index():
-    index_file = os.path.join(CLIENT_DIR, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
-    return {"message": "AI Interviewer API is running."}
-
-
-if __name__ == "__main__":
-    import uvicorn
-    host = os.environ.get("HOST", "127.0.0.1")
-    port = int(os.environ.get("PORT", 8000))
-    print(f"Starting RAG AI Interviewer server on http://{host}:{port}...")
-    uvicorn.run("main:app", host=host, port=port, reload=True)
